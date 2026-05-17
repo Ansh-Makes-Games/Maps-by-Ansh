@@ -1,0 +1,10 @@
+{
+  "name": "Maps",
+  "description": "A high-performance mapping platform with turn-by-turn navigation, AI-powered itinerary generation, real-time social sharing, and liquid glass UI. Built with OSM, Gemini, and Firestore.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
