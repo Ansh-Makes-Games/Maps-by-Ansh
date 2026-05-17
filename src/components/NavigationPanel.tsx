@@ -7,11 +7,23 @@ interface NavigationPanelProps {
   onSearch: (result: SearchResult, type: 'start' | 'end') => void;
   onStartNav: () => void;
   onShare: () => void;
+  onNextStep?: () => void;
+  onStopNav?: () => void;
+  currentStepIndex?: number;
   routeData: any;
   isNavigating: boolean;
 }
 
-export const NavigationPanel: React.FC<NavigationPanelProps> = ({ onSearch, onStartNav, onShare, routeData, isNavigating }) => {
+export const NavigationPanel: React.FC<NavigationPanelProps> = ({ 
+  onSearch, 
+  onStartNav, 
+  onShare, 
+  onNextStep,
+  onStopNav,
+  currentStepIndex = 0,
+  routeData, 
+  isNavigating 
+}) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [activeTab, setActiveTab] = useState<'search' | 'route'>('search');
@@ -142,11 +154,12 @@ export const NavigationPanel: React.FC<NavigationPanelProps> = ({ onSearch, onSt
 
       {/* Real-time Alerts / Notifications */}
       <AnimatePresence>
-        {isNavigating && (
+        {isNavigating && routeData && (
           <motion.div
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            className="glass-card border-blue-500/30 pointer-events-auto bg-blue-500/10"
+            exit={{ x: -20, opacity: 0 }}
+            className="glass-card border-blue-500/30 pointer-events-auto bg-blue-500/10 flex flex-col gap-4"
           >
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-blue-500 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/40 animate-pulse">
@@ -154,11 +167,47 @@ export const NavigationPanel: React.FC<NavigationPanelProps> = ({ onSearch, onSt
               </div>
               <div className="flex-1">
                 <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest leading-none mb-1">Active Navigation</p>
-                <p className="text-sm font-semibold text-white">Turn right onto Innovation Dr.</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-white">
+                    {routeData.routes[0].legs[0].steps[currentStepIndex]?.maneuver.instruction || "Proceed to route"}
+                  </p>
+                  <div className="flex gap-2">
+                    <button className="p-2 hover:bg-white/10 rounded-xl transition-colors">
+                      <Volume2 className="w-4 h-4 text-slate-300" />
+                    </button>
+                    <button 
+                      onClick={onStopNav}
+                      className="p-2 hover:bg-red-500/20 rounded-xl transition-colors text-red-400"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
-              <button className="p-2.5 hover:bg-white/10 rounded-xl transition-colors">
-                <Volume2 className="w-5 h-5 text-slate-300" />
-              </button>
+            </div>
+
+            <div className="max-h-48 overflow-y-auto space-y-3 custom-scrollbar pr-2 border-t border-white/5 pt-4">
+              {routeData.routes[0].legs[0].steps.map((step: any, idx: number) => (
+                <div key={idx} className={`flex items-start gap-3 p-3 rounded-2xl border transition-all ${idx === currentStepIndex ? 'bg-blue-600/20 border-blue-500/30 shadow-inner' : 'border-transparent opacity-50'}`}>
+                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${idx === currentStepIndex ? 'bg-blue-500' : 'bg-white/5'}`}>
+                      <span className={`text-[10px] font-bold uppercase tracking-tighter ${idx === currentStepIndex ? 'text-white' : 'text-slate-500'}`}>#{idx + 1}</span>
+                   </div>
+                   <div className="flex-1">
+                      <p className={`text-xs leading-tight font-medium ${idx === currentStepIndex ? 'text-white' : 'text-slate-300'}`}>{step.maneuver.instruction}</p>
+                      <p className="text-[10px] text-slate-500 font-bold mt-1 uppercase tracking-widest">In {(step.distance / 1000).toFixed(2)} KM</p>
+                   </div>
+                   {idx === currentStepIndex && (
+                     <div className="h-full flex items-center">
+                        <button 
+                          onClick={onNextStep}
+                          className="px-3 py-1 bg-white text-blue-600 text-[10px] font-black rounded-lg shadow-lg active:scale-95 transition-all"
+                        >
+                          DONE
+                        </button>
+                     </div>
+                   )}
+                </div>
+              ))}
             </div>
           </motion.div>
         )}

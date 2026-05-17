@@ -17,7 +17,8 @@ interface MapComponentProps {
   center: [number, number];
   zoom: number;
   route?: any;
-  style?: 'dark' | 'satellite';
+  baseLayer?: 'dark' | 'satellite' | 'street';
+  showTraffic?: boolean;
   startPoint?: [number, number];
   endPoint?: [number, number];
 }
@@ -30,7 +31,15 @@ function RecenterMap({ center, zoom }: { center: [number, number], zoom: number 
   return null;
 }
 
-export const MapComponent: React.FC<MapComponentProps> = ({ center, zoom, route, style = 'dark', startPoint, endPoint }) => {
+export const MapComponent: React.FC<MapComponentProps> = ({ 
+  center, 
+  zoom, 
+  route, 
+  baseLayer = 'dark', 
+  showTraffic = false,
+  startPoint, 
+  endPoint 
+}) => {
   return (
     <div className="w-full h-full relative">
       <MapContainer 
@@ -40,39 +49,62 @@ export const MapComponent: React.FC<MapComponentProps> = ({ center, zoom, route,
         zoomControl={false}
       >
         <AnimatePresence mode="wait">
-          {style === 'dark' ? (
+          {baseLayer === 'dark' && (
             <TileLayer
               key="dark"
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             />
-          ) : (
+          )}
+          {baseLayer === 'satellite' && (
             <TileLayer
               key="satellite"
-              attribution='&copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EBP, and the GIS User Community'
+              attribution='&copy; Esri'
               url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
             />
           )}
+          {baseLayer === 'street' && (
+            <TileLayer
+              key="street"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+          )}
         </AnimatePresence>
+
+        {showTraffic && (
+          <TileLayer
+            key="traffic"
+            attribution='&copy; OpenStreetMap'
+            url="https://{s}.tile.thunderforest.com/transport-dark/{z}/{x}/{y}.png?apikey=placeholder" 
+            opacity={0.4}
+          />
+        )}
         
         <RecenterMap center={center} zoom={zoom} />
 
         {startPoint && (
-          <Marker position={startPoint}>
-            <Popup>Start Location</Popup>
-          </Marker>
+          <Marker position={startPoint} icon={L.divIcon({
+            className: '',
+            html: `<div class="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg shadow-blue-500/50"></div>`,
+            iconSize: [16, 16],
+            iconAnchor: [8, 8]
+          })} />
         )}
 
         {endPoint && (
-          <Marker position={endPoint}>
-            <Popup>Destination</Popup>
-          </Marker>
+          <Marker position={endPoint} icon={L.divIcon({
+            className: '',
+            html: `<div class="w-5 h-5 bg-red-500 rounded-full border-2 border-white shadow-lg shadow-red-500/50"></div>`,
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+          })} />
         )}
 
         {route && (
           <Polyline 
             positions={route.routes[0].geometry.coordinates.map((coord: any) => [coord[1], coord[0]])}
-            color="#38bdf8"
+            color="#3b82f6"
             weight={6}
             opacity={0.8}
             lineCap="round"

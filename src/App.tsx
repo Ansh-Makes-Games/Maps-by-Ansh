@@ -21,10 +21,12 @@ export default function App() {
   const [destination, setDestination] = useState<SearchResult | null>(null);
   const [route, setRoute] = useState<any>(null);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [zoom, setZoom] = useState(13);
   const [badges, setBadges] = useState<string[]>(['Early Adopter']);
   const [language, setLanguage] = useState('en-US');
-  const [mapStyle, setMapStyle] = useState<'dark' | 'satellite'>('dark');
+  const [baseLayer, setBaseLayer] = useState<'dark' | 'satellite' | 'street'>('dark');
+  const [showTraffic, setShowTraffic] = useState(false);
 
   // Handle Shared Routes from URL
   useEffect(() => {
@@ -136,7 +138,9 @@ export default function App() {
 
   const startNavigation = () => {
     setIsNavigating(true);
-    speak("Starting navigation. Head towards your destination.", language);
+    setCurrentStepIndex(0);
+    const firstStep = route?.routes[0]?.legs[0]?.steps[0]?.maneuver?.instruction;
+    if (firstStep) speak(`Navigation started. ${firstStep}`, language);
     
     // Simulate badge earn
     if (badges.length < 2) {
@@ -151,6 +155,30 @@ export default function App() {
     }
   };
 
+  const nextStep = () => {
+    if (!route) return;
+    const totalSteps = route.routes[0].legs[0].steps.length;
+    if (currentStepIndex < totalSteps - 1) {
+      const nextIdx = currentStepIndex + 1;
+      setCurrentStepIndex(nextIdx);
+      const instruction = route.routes[0].legs[0].steps[nextIdx].maneuver.instruction;
+      speak(instruction, language);
+      
+      // Update map center to follow the step
+      const coords = route.routes[0].legs[0].steps[nextIdx].maneuver.location;
+      setMapCenter([coords[1], coords[0]]);
+    } else {
+      setIsNavigating(false);
+      speak("You have reached your destination.", language);
+    }
+  };
+
+  const stopNavigation = () => {
+    setIsNavigating(false);
+    setCurrentStepIndex(0);
+    speak("Navigation stopped.", language);
+  };
+
   const [weather, setWeather] = useState<any>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -159,8 +187,13 @@ export default function App() {
     const fetchWeather = async () => {
       try {
         const response = await fetch(`/api/weather?lat=${userLocation[0]}&lon=${userLocation[1]}`);
-        const data = await response.json();
-        if (!data.error) setWeather(data);
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+           const data = await response.json();
+           if (!data.error) setWeather(data);
+        } else {
+           console.warn("Weather API returned non-JSON response");
+        }
       } catch (err) {
         console.error("Weather fetch failed", err);
       }
@@ -179,7 +212,8 @@ export default function App() {
         center={mapCenter} 
         zoom={zoom} 
         route={route}
-        style={mapStyle}
+        baseLayer={baseLayer}
+        showTraffic={showTraffic}
         startPoint={userLocation}
         endPoint={destination ? [parseFloat(destination.lat), parseFloat(destination.lon)] : undefined}
       />
@@ -250,6 +284,9 @@ export default function App() {
               onSearch={handleSearchSelect}
               onStartNav={startNavigation}
               onShare={handleShare}
+              onNextStep={nextStep}
+              onStopNav={stopNavigation}
+              currentStepIndex={currentStepIndex}
               routeData={route}
               isNavigating={isNavigating}
             />
@@ -260,23 +297,41 @@ export default function App() {
       {/* Top Right Toolbars */}
       <div className="absolute top-20 right-4 md:right-6 flex flex-col gap-3 z-20">
         <div className="glass flex flex-col p-1 rounded-2xl">
-          <button 
-            onClick={() => setMapStyle(prev => prev === 'dark' ? 'satellite' : 'dark')}
-            className={`p-3 hover:bg-white/10 rounded-xl transition-colors group relative ${mapStyle === 'satellite' ? 'text-blue-400' : 'text-slate-300'}`}
-          >
-            <Layers className="w-5 h-5" />
-            <span className="absolute right-full mr-3 px-2 py-1 glass text-[10px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-              {mapStyle === 'dark' ? 'Switch to Satellite' : 'Switch to Dark'}
-            </span>
-          </button>
+          <div className="relative group/layers">
+            <button 
+              className={`p-3 hover:bg-white/10 rounded-xl transition-colors ${baseLayer !== 'dark' || showTraffic ? 'text-blue-400' : 'text-slate-300'}`}
+            >
+              <Layers className="w-5 h-5" />
+            </button>
+            
+            <div className="absolute right-full mr-4 top-0 glass p-2 rounded-2xl opacity-0 scale-95 pointer-events-none group-hover/layers:opacity-100 group-hover/layers:scale-100 group-hover/layers:pointer-events-auto transition-all flex flex-col gap-1 min-w-[140px]">
+               <p className="text-[9px] uppercase font-bold text-slate-500 px-2 py-1 tracking-widest">Base Layers</p>
+               <button onClick={() => setBaseLayer('dark')} className={`text-left px-3 py-2 rounded-xl text-xs font-medium transition-all ${baseLayer === 'dark' ? 'bg-blue-600 text-white' : 'hover:bg-white/5 text-slate-300'}`}>Dark Vector</button>
+               <button onClick={() => setBaseLayer('satellite')} className={`text-left px-3 py-2 rounded-xl text-xs font-medium transition-all ${baseLayer === 'satellite' ? 'bg-blue-600 text-white' : 'hover:bg-white/5 text-slate-300'}`}>Satellite View</button>
+               <button onClick={() => setBaseLayer('street')} className={`text-left px-3 py-2 rounded-xl text-xs font-medium transition-all ${baseLayer === 'street' ? 'bg-blue-600 text-white' : 'hover:bg-white/5 text-slate-300'}`}>Standard Street</button>
+               
+               <div className="h-[1px] bg-white/5 my-1" />
+               
+               <p className="text-[9px] uppercase font-bold text-slate-500 px-2 py-1 tracking-widest">Overlays</p>
+               <button 
+                 onClick={() => setShowTraffic(!showTraffic)} 
+                 className={`text-left px-3 py-2 rounded-xl text-xs font-medium transition-all flex justify-between items-center ${showTraffic ? 'text-emerald-400 bg-emerald-500/10' : 'hover:bg-white/5 text-slate-300'}`}
+               >
+                 <span>Traffic Flux</span>
+                 {showTraffic && <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />}
+               </button>
+            </div>
+          </div>
+
           <button 
             onClick={handleOfflineDownload}
             data-tool="offline"
-            className="p-3 hover:bg-white/10 rounded-xl transition-colors group relative"
+            className="p-3 hover:bg-white/10 rounded-xl transition-colors group relative border-t border-white/5 mt-1 pt-4"
           >
             <Download className="w-5 h-5 text-slate-300" />
             <span className="absolute right-full mr-3 px-2 py-1 glass text-[10px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Offline Maps</span>
           </button>
+          
           <button onClick={handleSave} className="p-3 hover:bg-white/10 rounded-xl transition-colors group relative">
             <Save className="w-5 h-5 text-emerald-400" />
             <span className="absolute right-full mr-3 px-2 py-1 glass text-[10px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Save Route</span>
