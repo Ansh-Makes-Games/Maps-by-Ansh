@@ -95,6 +95,24 @@ async function startServer() {
     }
   });
 
+  // Thunderforest Proxy
+  app.get("/api/tiles/transport/:z/:x/:y", async (req, res) => {
+    const { z, x, y } = req.params;
+    const apiKey = process.env.THUNDERFOREST_API_KEY;
+    if (!apiKey) {
+      return res.redirect(`https://tile.openstreetmap.org/${z}/${x}/${y}.png`);
+    }
+    const url = `https://tile.thunderforest.com/transport-dark/${z}/${x}/${y}.png?apikey=${apiKey}`;
+    try {
+      const response = await fetch(url);
+      const blob = await response.arrayBuffer();
+      res.setHeader("Content-Type", "image/png");
+      res.send(Buffer.from(blob));
+    } catch (error) {
+      res.status(500).send("Tile fetch failed");
+    }
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

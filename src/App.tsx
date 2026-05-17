@@ -27,6 +27,7 @@ export default function App() {
   const [language, setLanguage] = useState('en-US');
   const [baseLayer, setBaseLayer] = useState<'dark' | 'satellite' | 'street'>('dark');
   const [showTraffic, setShowTraffic] = useState(false);
+  const [isLayerPickerOpen, setIsLayerPickerOpen] = useState(false);
 
   // Handle Shared Routes from URL
   useEffect(() => {
@@ -297,30 +298,42 @@ export default function App() {
       {/* Top Right Toolbars */}
       <div className="absolute top-20 right-4 md:right-6 flex flex-col gap-3 z-20">
         <div className="glass flex flex-col p-1 rounded-2xl">
-          <div className="relative group/layers">
+          <div className="relative">
             <button 
-              className={`p-3 hover:bg-white/10 rounded-xl transition-colors ${baseLayer !== 'dark' || showTraffic ? 'text-blue-400' : 'text-slate-300'}`}
+              onClick={() => setIsLayerPickerOpen(!isLayerPickerOpen)}
+              className={`p-3 hover:bg-white/10 rounded-xl transition-colors ${baseLayer !== 'dark' || showTraffic || isLayerPickerOpen ? 'text-blue-400' : 'text-slate-300'}`}
             >
               <Layers className="w-5 h-5" />
             </button>
             
-            <div className="absolute right-full mr-4 top-0 glass p-2 rounded-2xl opacity-0 scale-95 pointer-events-none group-hover/layers:opacity-100 group-hover/layers:scale-100 group-hover/layers:pointer-events-auto transition-all flex flex-col gap-1 min-w-[140px]">
-               <p className="text-[9px] uppercase font-bold text-slate-500 px-2 py-1 tracking-widest">Base Layers</p>
-               <button onClick={() => setBaseLayer('dark')} className={`text-left px-3 py-2 rounded-xl text-xs font-medium transition-all ${baseLayer === 'dark' ? 'bg-blue-600 text-white' : 'hover:bg-white/5 text-slate-300'}`}>Dark Vector</button>
-               <button onClick={() => setBaseLayer('satellite')} className={`text-left px-3 py-2 rounded-xl text-xs font-medium transition-all ${baseLayer === 'satellite' ? 'bg-blue-600 text-white' : 'hover:bg-white/5 text-slate-300'}`}>Satellite View</button>
-               <button onClick={() => setBaseLayer('street')} className={`text-left px-3 py-2 rounded-xl text-xs font-medium transition-all ${baseLayer === 'street' ? 'bg-blue-600 text-white' : 'hover:bg-white/5 text-slate-300'}`}>Standard Street</button>
-               
-               <div className="h-[1px] bg-white/5 my-1" />
-               
-               <p className="text-[9px] uppercase font-bold text-slate-500 px-2 py-1 tracking-widest">Overlays</p>
-               <button 
-                 onClick={() => setShowTraffic(!showTraffic)} 
-                 className={`text-left px-3 py-2 rounded-xl text-xs font-medium transition-all flex justify-between items-center ${showTraffic ? 'text-emerald-400 bg-emerald-500/10' : 'hover:bg-white/5 text-slate-300'}`}
-               >
-                 <span>Traffic Flux</span>
-                 {showTraffic && <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />}
-               </button>
-            </div>
+            <AnimatePresence>
+              {isLayerPickerOpen && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95, x: 10 }}
+                  animate={{ opacity: 1, scale: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, x: 10 }}
+                  className="absolute right-full mr-4 top-0 glass p-2 rounded-2xl transition-all flex flex-col gap-1 min-w-[140px] z-50 shadow-2xl"
+                >
+                   <div className="flex justify-between items-center px-2 py-1">
+                     <p className="text-[9px] uppercase font-bold text-slate-500 tracking-widest">Base Layers</p>
+                   </div>
+                   <button onClick={() => { setBaseLayer('dark'); setIsLayerPickerOpen(false); }} className={`text-left px-3 py-2 rounded-xl text-xs font-medium transition-all ${baseLayer === 'dark' ? 'bg-blue-600 text-white' : 'hover:bg-white/5 text-slate-300'}`}>Dark Vector</button>
+                   <button onClick={() => { setBaseLayer('satellite'); setIsLayerPickerOpen(false); }} className={`text-left px-3 py-2 rounded-xl text-xs font-medium transition-all ${baseLayer === 'satellite' ? 'bg-blue-600 text-white' : 'hover:bg-white/5 text-slate-300'}`}>Satellite View</button>
+                   <button onClick={() => { setBaseLayer('street'); setIsLayerPickerOpen(false); }} className={`text-left px-3 py-2 rounded-xl text-xs font-medium transition-all ${baseLayer === 'street' ? 'bg-blue-600 text-white' : 'hover:bg-white/5 text-slate-300'}`}>Standard Street</button>
+                   
+                   <div className="h-[1px] bg-white/5 my-1" />
+                   
+                   <p className="text-[9px] uppercase font-bold text-slate-500 px-2 py-1 tracking-widest">Overlays</p>
+                   <button 
+                     onClick={() => setShowTraffic(!showTraffic)} 
+                     className={`text-left px-3 py-2 rounded-xl text-xs font-medium transition-all flex justify-between items-center ${showTraffic ? 'text-emerald-400 bg-emerald-500/10' : 'hover:bg-white/5 text-slate-300'}`}
+                   >
+                     <span>Traffic Flux</span>
+                     {showTraffic && <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />}
+                   </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           <button 

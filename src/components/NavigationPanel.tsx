@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, MapPin, Navigation, Save, Share2, Languages, Volume2, Info } from 'lucide-react';
+import { Search, MapPin, Navigation, Save, Share2, Languages, Volume2, Info, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { searchPlaces, SearchResult } from '../lib/mapUtils';
 
@@ -113,9 +113,30 @@ export const NavigationPanel: React.FC<NavigationPanelProps> = ({
                        </div>
                        <div className="flex flex-col items-end">
                           <span className="text-slate-500 uppercase tracking-widest text-[9px] mb-1">Traffic Impact</span>
-                          <span className="text-emerald-400">NOMINAL</span>
+                          <span className={routeData.routes[0].duration > routeData.routes[0].distance / 10 ? "text-amber-400" : "text-emerald-400"}>
+                            {routeData.routes[0].duration > routeData.routes[0].distance / 10 ? "CONGESTED" : "OPTIMAL"}
+                          </span>
                        </div>
                     </div>
+                 </div>
+
+                 {/* API Assistance Card (Dismissable) */}
+                 <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl">
+                    <div className="flex items-center gap-2 mb-2">
+                       <Info className="w-4 h-4 text-blue-400" />
+                       <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Dev Insights</span>
+                    </div>
+                    <p className="text-[10px] text-slate-400 leading-relaxed mb-3">
+                       For live traffic flux (Red/Yellow lines), a **Thunderforest** or **Mapbox** key is required. 
+                       Both offer generous free tiers without card verification for initial development.
+                    </p>
+                    <a 
+                      href="https://www.thunderforest.com/signup/" 
+                      target="_blank" 
+                      className="text-[9px] font-black text-white bg-blue-600 px-3 py-1.5 rounded-lg uppercase tracking-wider hover:bg-blue-500 transition-colors"
+                    >
+                      Get Key
+                    </a>
                  </div>
 
                  <button 

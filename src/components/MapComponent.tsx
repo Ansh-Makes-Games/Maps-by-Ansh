@@ -75,9 +75,10 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         {showTraffic && (
           <TileLayer
             key="traffic"
-            attribution='&copy; OpenStreetMap'
-            url="https://{s}.tile.thunderforest.com/transport-dark/{z}/{x}/{y}.png?apikey=placeholder" 
-            opacity={0.4}
+            attribution='&copy; <a href="https://www.thunderforest.com/terms/">Thunderforest</a>'
+            url="/api/tiles/transport/{z}/{x}/{y}" 
+            opacity={0.6}
+            className="mix-blend-screen"
           />
         )}
         
