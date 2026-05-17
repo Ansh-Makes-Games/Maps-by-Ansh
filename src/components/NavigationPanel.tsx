@@ -36,11 +36,11 @@ export const NavigationPanel: React.FC<NavigationPanelProps> = ({
   };
 
   return (
-    <div className="w-full flex flex-col gap-4 pointer-events-none">
+    <div className="w-full flex flex-col gap-3">
       <motion.div 
-        initial={{ x: -100, opacity: 0 }}
+        initial={{ x: -50, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
-        className="glass-card pointer-events-auto border-white/10"
+        className="glass-card border-white/10"
       >
         <div className="flex gap-2 mb-4 p-1 bg-white/5 rounded-2xl border border-white/5">
           <button 
@@ -59,34 +59,46 @@ export const NavigationPanel: React.FC<NavigationPanelProps> = ({
 
         {activeTab === 'search' ? (
           <>
-            <form onSubmit={handleSearch} className="relative mb-4">
+            <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
+              {['Parks', 'Coffee', 'Gas', 'Hotels'].map((cat) => (
+                <button 
+                  key={cat}
+                  onClick={() => { setQuery(cat); handleSearch({ preventDefault: () => {} } as any); }}
+                  className="px-4 py-1.5 glass rounded-full text-[10px] font-bold text-slate-400 whitespace-nowrap hover:text-white hover:border-white/20 transition-all border border-white/5"
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+            <form onSubmit={handleSearch} className="relative mb-3">
               <input 
                 type="text"
                 placeholder="Where to?"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:text-slate-500"
+                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-xs text-white focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-slate-500"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             </form>
 
-            <div className="max-h-80 overflow-y-auto space-y-2 custom-scrollbar pr-1">
-              <AnimatePresence>
-                {results.map((res) => (
+            <div className="max-h-60 overflow-y-auto space-y-1.5 custom-scrollbar pr-1">
+              <AnimatePresence mode="popLayout">
+                {results.map((res, i) => (
                   <motion.button
                     key={res.place_id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     onClick={() => onSearch(res, 'end')}
-                    className="w-full text-left p-3 rounded-2xl hover:bg-white/5 border border-transparent hover:border-white/10 transition-all flex items-start gap-4 group"
+                    className="w-full text-left p-2.5 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/10 transition-all flex items-start gap-3 group"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 group-hover:bg-blue-500/20 transition-colors">
-                      <MapPin className="w-6 h-6 text-blue-400" />
+                    <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0 group-hover:bg-blue-500/20 transition-colors">
+                      <MapPin className="w-5 h-5 text-blue-400" />
                     </div>
                     <div>
-                      <div className="text-sm font-semibold text-slate-100 group-hover:text-blue-400 transition-colors line-clamp-1">{res.display_name.split(',')[0]}</div>
-                      <div className="text-[11px] text-slate-400 leading-tight mt-1 line-clamp-2">{res.display_name.split(',').slice(1).join(',')}</div>
+                      <div className="text-xs font-semibold text-slate-100 group-hover:text-blue-400 transition-colors line-clamp-1">{res.display_name.split(',')[0]}</div>
+                      <div className="text-[10px] text-slate-400 leading-tight mt-0.5 line-clamp-2">{res.display_name.split(',').slice(1).join(',')}</div>
                     </div>
                   </motion.button>
                 ))}
@@ -97,24 +109,24 @@ export const NavigationPanel: React.FC<NavigationPanelProps> = ({
           <div className="space-y-4">
              {routeData ? (
                <div className="space-y-4">
-                 <div className="p-6 bg-white/5 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 blur-[50px] -mr-16 -mt-16 pointer-events-none" />
-                    <p className="text-[10px] uppercase font-black tracking-[0.2em] text-blue-400 mb-3 ml-1">Arrival Window</p>
-                    <div className="flex items-baseline gap-3">
-                      <span className="text-6xl font-black text-white tracking-tighter drop-shadow-lg">
+                  <div className="p-4 bg-white/5 rounded-2xl border border-white/10 shadow-xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-blue-600/10 blur-[40px] -mr-12 -mt-12 pointer-events-none" />
+                    <p className="text-[9px] uppercase font-bold tracking-[0.2em] text-blue-400 mb-2 ml-1">Arrival Window</p>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-black text-white tracking-tighter drop-shadow-md">
                         {Math.round(routeData.routes[0].duration / 60)}
                       </span>
-                      <span className="text-xl font-bold text-slate-400">MINS</span>
+                      <span className="text-sm font-bold text-slate-400 uppercase">mins</span>
                     </div>
-                    <div className="flex justify-between mt-6 text-[12px] font-bold border-t border-white/5 pt-5 px-1">
+                    <div className="flex justify-between mt-4 text-[10px] font-bold border-t border-white/5 pt-4 px-1">
                        <div className="flex flex-col">
-                          <span className="text-slate-500 uppercase tracking-widest text-[9px] mb-1">Total Distance</span>
+                          <span className="text-slate-500 uppercase tracking-widest text-[8px] mb-1">Total Distance</span>
                           <span className="text-white">{(routeData.routes[0].distance / 1000).toFixed(1)} KM</span>
                        </div>
                        <div className="flex flex-col items-end">
-                          <span className="text-slate-500 uppercase tracking-widest text-[9px] mb-1">Traffic Impact</span>
+                          <span className="text-slate-500 uppercase tracking-widest text-[8px] mb-1">Traffic Impact</span>
                           <span className={routeData.routes[0].duration > routeData.routes[0].distance / 10 ? "text-amber-400" : "text-emerald-400"}>
-                            {routeData.routes[0].duration > routeData.routes[0].distance / 10 ? "CONGESTED" : "OPTIMAL"}
+                            {routeData.routes[0].duration > routeData.routes[0].distance / 10 ? "CONGESTED" : "NOMINAL"}
                           </span>
                        </div>
                     </div>
@@ -161,19 +173,19 @@ export const NavigationPanel: React.FC<NavigationPanelProps> = ({
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -20, opacity: 0 }}
-            className="glass-card border-blue-500/30 pointer-events-auto bg-blue-500/10 flex flex-col gap-4"
+            className="glass-card border-blue-500/30 bg-blue-500/10 flex flex-col gap-3"
           >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-500 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/40 animate-pulse">
-                <Navigation className="w-7 h-7 text-white" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/40 animate-pulse">
+                <Navigation className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1">
-                <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest leading-none mb-1">Active Navigation</p>
+                <p className="text-[9px] font-bold text-blue-400 uppercase tracking-widest leading-none mb-1">Active Navigation</p>
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold text-white">
+                  <p className="text-xs font-semibold text-white">
                     {routeData.routes[0].legs[0].steps[currentStepIndex]?.maneuver.instruction || "Proceed to route"}
                   </p>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5">
                     <button className="p-2 hover:bg-white/10 rounded-xl transition-colors">
                       <Volume2 className="w-4 h-4 text-slate-300" />
                     </button>

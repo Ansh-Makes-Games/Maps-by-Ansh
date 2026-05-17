@@ -220,18 +220,18 @@ export default function App() {
       />
 
       {/* Header Overlay */}
-      <header className="absolute top-0 left-0 right-0 h-16 px-4 md:px-6 flex items-center justify-between border-b border-white/10 bg-white/5 backdrop-blur-xl z-30">
+      <header className="absolute top-0 left-0 right-0 h-14 px-4 flex items-center justify-between border-b border-white/10 bg-white/5 backdrop-blur-xl z-30">
         <div className="flex items-center gap-3">
           <button 
              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-             className="p-2 md:hidden hover:bg-white/10 rounded-lg text-white"
+             className="p-2 hover:bg-white/10 rounded-lg text-white transition-colors"
           >
-            <Layers className="w-5 h-5" />
+            <Layers className="w-4 h-4" />
           </button>
-          <div className="w-9 h-9 md:w-10 md:h-10 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-            <MapIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
+          <div className="w-8 h-8 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <MapIcon className="w-4 h-4 text-white" />
           </div>
-          <span className="text-lg md:text-xl font-bold tracking-tight text-gradient">Maps</span>
+          <span className="text-base md:text-lg font-bold tracking-tight text-gradient">Maps</span>
         </div>
 
         <div className="hidden md:flex items-center gap-4">
@@ -276,10 +276,10 @@ export default function App() {
       <AnimatePresence>
         {isSidebarOpen && (
           <motion.div 
-            initial={{ x: -400, opacity: 0 }}
+            initial={{ x: -300, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -400, opacity: 0 }}
-            className="absolute top-20 left-0 bottom-0 w-full md:w-96 p-4 z-20 pointer-events-none"
+            exit={{ x: -300, opacity: 0 }}
+            className="absolute top-16 left-0 bottom-0 w-full md:w-72 p-3 z-20"
           >
             <NavigationPanel 
               onSearch={handleSearchSelect}
@@ -297,13 +297,13 @@ export default function App() {
 
       {/* Top Right Toolbars */}
       <div className="absolute top-20 right-4 md:right-6 flex flex-col gap-3 z-20">
-        <div className="glass flex flex-col p-1 rounded-2xl">
+        <div className="glass flex flex-col p-0.5 rounded-xl">
           <div className="relative">
             <button 
               onClick={() => setIsLayerPickerOpen(!isLayerPickerOpen)}
-              className={`p-3 hover:bg-white/10 rounded-xl transition-colors ${baseLayer !== 'dark' || showTraffic || isLayerPickerOpen ? 'text-blue-400' : 'text-slate-300'}`}
+              className={`p-2.5 hover:bg-white/10 rounded-lg transition-colors ${baseLayer !== 'dark' || showTraffic || isLayerPickerOpen ? 'text-blue-400' : 'text-slate-300'}`}
             >
-              <Layers className="w-5 h-5" />
+              <Layers className="w-4 h-4" />
             </button>
             
             <AnimatePresence>
@@ -312,24 +312,24 @@ export default function App() {
                   initial={{ opacity: 0, scale: 0.95, x: 10 }}
                   animate={{ opacity: 1, scale: 1, x: 0 }}
                   exit={{ opacity: 0, scale: 0.95, x: 10 }}
-                  className="absolute right-full mr-4 top-0 glass p-2 rounded-2xl transition-all flex flex-col gap-1 min-w-[140px] z-50 shadow-2xl"
+                  className="absolute right-full mr-3 top-0 glass p-2 rounded-xl transition-all flex flex-col gap-1 min-w-[130px] z-50 shadow-2xl"
                 >
-                   <div className="flex justify-between items-center px-2 py-1">
-                     <p className="text-[9px] uppercase font-bold text-slate-500 tracking-widest">Base Layers</p>
+                   <div className="flex justify-between items-center px-1.5 py-1">
+                     <p className="text-[8px] uppercase font-bold text-slate-500 tracking-widest">Base Layers</p>
                    </div>
-                   <button onClick={() => { setBaseLayer('dark'); setIsLayerPickerOpen(false); }} className={`text-left px-3 py-2 rounded-xl text-xs font-medium transition-all ${baseLayer === 'dark' ? 'bg-blue-600 text-white' : 'hover:bg-white/5 text-slate-300'}`}>Dark Vector</button>
-                   <button onClick={() => { setBaseLayer('satellite'); setIsLayerPickerOpen(false); }} className={`text-left px-3 py-2 rounded-xl text-xs font-medium transition-all ${baseLayer === 'satellite' ? 'bg-blue-600 text-white' : 'hover:bg-white/5 text-slate-300'}`}>Satellite View</button>
-                   <button onClick={() => { setBaseLayer('street'); setIsLayerPickerOpen(false); }} className={`text-left px-3 py-2 rounded-xl text-xs font-medium transition-all ${baseLayer === 'street' ? 'bg-blue-600 text-white' : 'hover:bg-white/5 text-slate-300'}`}>Standard Street</button>
+                   <button onClick={() => { setBaseLayer('dark'); setIsLayerPickerOpen(false); }} className={`text-left px-2 py-1.5 rounded-lg text-[10px] font-medium transition-all ${baseLayer === 'dark' ? 'bg-blue-600 text-white' : 'hover:bg-white/5 text-slate-300'}`}>Dark Vector</button>
+                   <button onClick={() => { setBaseLayer('satellite'); setIsLayerPickerOpen(false); }} className={`text-left px-2 py-1.5 rounded-lg text-[10px] font-medium transition-all ${baseLayer === 'satellite' ? 'bg-blue-600 text-white' : 'hover:bg-white/5 text-slate-300'}`}>Satellite View</button>
+                   <button onClick={() => { setBaseLayer('street'); setIsLayerPickerOpen(false); }} className={`text-left px-2 py-1.5 rounded-lg text-[10px] font-medium transition-all ${baseLayer === 'street' ? 'bg-blue-600 text-white' : 'hover:bg-white/5 text-slate-300'}`}>Standard Street</button>
                    
                    <div className="h-[1px] bg-white/5 my-1" />
                    
-                   <p className="text-[9px] uppercase font-bold text-slate-500 px-2 py-1 tracking-widest">Overlays</p>
+                   <p className="text-[8px] uppercase font-bold text-slate-500 px-1.5 py-1 tracking-widest">Overlays</p>
                    <button 
                      onClick={() => setShowTraffic(!showTraffic)} 
-                     className={`text-left px-3 py-2 rounded-xl text-xs font-medium transition-all flex justify-between items-center ${showTraffic ? 'text-emerald-400 bg-emerald-500/10' : 'hover:bg-white/5 text-slate-300'}`}
+                     className={`text-left px-2 py-1.5 rounded-lg text-[10px] font-medium transition-all flex justify-between items-center ${showTraffic ? 'text-emerald-400 bg-emerald-500/10' : 'hover:bg-white/5 text-slate-300'}`}
                    >
-                     <span>Traffic Flux</span>
-                     {showTraffic && <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />}
+                     <span>Flux</span>
+                     {showTraffic && <div className="w-1 h-1 bg-emerald-400 rounded-full animate-pulse" />}
                    </button>
                 </motion.div>
               )}
@@ -339,50 +339,50 @@ export default function App() {
           <button 
             onClick={handleOfflineDownload}
             data-tool="offline"
-            className="p-3 hover:bg-white/10 rounded-xl transition-colors group relative border-t border-white/5 mt-1 pt-4"
+            className="p-2.5 hover:bg-white/10 rounded-lg transition-colors group relative border-t border-white/5 mt-0.5 pt-2.5"
           >
-            <Download className="w-5 h-5 text-slate-300" />
-            <span className="absolute right-full mr-3 px-2 py-1 glass text-[10px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Offline Maps</span>
+            <Download className="w-4 h-4 text-slate-300" />
+            <span className="absolute right-full mr-3 px-2 py-1 glass text-[9px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Offline</span>
           </button>
           
-          <button onClick={handleSave} className="p-3 hover:bg-white/10 rounded-xl transition-colors group relative">
-            <Save className="w-5 h-5 text-emerald-400" />
-            <span className="absolute right-full mr-3 px-2 py-1 glass text-[10px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Save Route</span>
+          <button onClick={handleSave} className="p-2.5 hover:bg-white/10 rounded-lg transition-colors group relative">
+            <Save className="w-4 h-4 text-emerald-400" />
+            <span className="absolute right-full mr-3 px-2 py-1 glass text-[9px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Save</span>
           </button>
         </div>
 
-        <button className="glass p-3 rounded-2xl group relative">
-          <Users className="w-5 h-5 text-slate-300" />
-          <span className="absolute right-full mr-3 px-2 py-1 glass text-[10px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Live Social</span>
+        <button className="glass p-2.5 rounded-xl group relative">
+          <Users className="w-4 h-4 text-slate-300" />
+          <span className="absolute right-full mr-3 px-2 py-1 glass text-[9px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Social</span>
         </button>
       </div>
 
       {/* Bottom Profile / Badges Bar */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 z-10">
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 z-10">
         <motion.div 
-            whileHover={{ y: -5 }}
-            className="glass-dark px-6 py-3 rounded-full flex items-center gap-4 border border-white/20"
+            whileHover={{ y: -3 }}
+            className="glass-dark px-4 py-2 rounded-full flex items-center gap-3 border border-white/20"
         >
-          <div className="flex items-center gap-2 pr-4 border-r border-white/10">
-             <div className="w-8 h-8 rounded-lg bg-yellow-500/20 flex items-center justify-center">
-                <Award className="w-5 h-5 text-yellow-500" />
+          <div className="flex items-center gap-2 pr-3 border-r border-white/10">
+             <div className="w-7 h-7 rounded-lg bg-yellow-500/20 flex items-center justify-center">
+                <Award className="w-4 h-4 text-yellow-500" />
              </div>
              <div className="flex flex-col">
-                <span className="text-[10px] text-slate-500 uppercase font-bold leading-none">Rank</span>
-                <span className="text-sm font-semibold text-slate-200">Explorer</span>
+                <span className="text-[8px] text-slate-500 uppercase font-bold leading-none">Rank</span>
+                <span className="text-xs font-semibold text-slate-200">Explorer</span>
              </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-1.5">
             {badges.map((badge, i) => (
-                <div key={i} className="px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 text-[10px] font-bold text-blue-300 uppercase tracking-wider">
+                <div key={i} className="px-2 py-0.5 rounded-full bg-blue-500/20 border border-blue-500/30 text-[9px] font-bold text-blue-300 uppercase tracking-wider">
                   {badge}
                 </div>
             ))}
           </div>
 
-          <button className="ml-4 p-2 hover:bg-white/10 rounded-full transition-colors">
-            <Settings className="w-5 h-5 text-slate-400" />
+          <button className="ml-2 p-1.5 hover:bg-white/10 rounded-full transition-colors">
+            <Settings className="w-4 h-4 text-slate-400" />
           </button>
         </motion.div>
       </div>
